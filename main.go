@@ -42,18 +42,17 @@ type DebugResp struct {
 }
 
 func main() {
-	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
-	http.HandleFunc("/score", handleScore)
-	http.HandleFunc("/debug", handleDebug)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
+	mux.HandleFunc("/score", handleScore)
+	mux.HandleFunc("/debug", handleDebug)
 
 	handler := withCORS(mux)
 
 	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	if port == "" { port = "8080" }
 	log.Printf("listening on :%s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
 
 func withCORS(next http.Handler) http.Handler {
